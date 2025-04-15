@@ -73,7 +73,7 @@ def sms_webhook():
         return jsonify({"success": True, "message": "SMS recebido e processado"})
 
     except Exception as e:
-        logger.error(f"❌ Erro ao processar webhook: {str(e)}")
+        logger.error(f"[ERRO] Erro ao processar webhook: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -83,9 +83,9 @@ def save_sms_data(activation_id, data):
         file_path = os.path.join(SMS_DATA_DIR, f"{activation_id}.json")
         with open(file_path, 'w') as f:
             json.dump(data, f)
-        logger.info(f"✅ Dados do SMS {activation_id} salvos com sucesso")
+        logger.info(f"[OK] Dados do SMS {activation_id} salvos com sucesso")
     except Exception as e:
-        logger.error(f"❌ Erro ao salvar dados do SMS: {str(e)}")
+        logger.error(f"[ERRO] Erro ao salvar dados do SMS: {str(e)}")
 
 
 def process_sms_code(activation_id, phone_number, sms_code, status):
@@ -114,10 +114,10 @@ def process_sms_code(activation_id, phone_number, sms_code, status):
 
             if response.status_code == 200:
                 logger.info(
-                    f"✅ Código SMS enviado para callback: {callback_url}")
+                    f"[OK] Código SMS enviado para callback: {callback_url}")
             else:
                 logger.error(
-                    f"❌ Erro ao enviar para callback: {response.status_code} - {response.text}")
+                    f"[ERRO] Erro ao enviar para callback: {response.status_code} - {response.text}")
         else:
             logger.info(
                 f"ℹ️ Nenhum callback configurado para ativação {activation_id}")
@@ -126,7 +126,7 @@ def process_sms_code(activation_id, phone_number, sms_code, status):
         update_sms_status(activation_id, "processed")
 
     except Exception as e:
-        logger.error(f"❌ Erro ao processar código SMS: {str(e)}")
+        logger.error(f"[ERRO] Erro ao processar código SMS: {str(e)}")
         update_sms_status(activation_id, "failed", str(e))
 
 
@@ -158,7 +158,7 @@ def update_sms_status(activation_id, status, error=None):
             # Atualizar o arquivo
             save_sms_data(activation_id, sms_codes[activation_id])
     except Exception as e:
-        logger.error(f"❌ Erro ao atualizar status do SMS: {str(e)}")
+        logger.error(f"[ERRO] Erro ao atualizar status do SMS: {str(e)}")
 
 
 @app.route('/sms-status/<activation_id>', methods=['GET'])

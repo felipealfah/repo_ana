@@ -38,7 +38,7 @@ class SMSAPI:
 
         if not self.api_key:
             logger.error(
-                "❌ ERRO: A chave 'SMS_ACTIVATE_API_KEY' não foi encontrada em credentials.json.")
+                "[ERRO] ERRO: A chave 'SMS_ACTIVATE_API_KEY' não foi encontrada em credentials.json.")
             return False
         return True
 
@@ -169,7 +169,7 @@ class SMSAPI:
             if "ACCESS_NUMBER" in response_text:
                 _, activation_id, phone_number = response_text.split(":")
                 logger.info(
-                    f"✅ Número comprado com sucesso: {phone_number} (ID: {activation_id})")
+                    f"[OK] Número comprado com sucesso: {phone_number} (ID: {activation_id})")
 
                 # Validar dados antes de retornar
                 if not all([activation_id, phone_number]):
@@ -189,14 +189,14 @@ class SMSAPI:
             for error_code, message in error_messages.items():
                 if error_code in response_text:
                     logger.error(
-                        f"❌ {message} para {service} no país {country}")
+                        f"[ERRO] {message} para {service} no país {country}")
                     return None, None
 
-            logger.error(f"❌ Erro desconhecido: {response_text}")
+            logger.error(f"[ERRO] Erro desconhecido: {response_text}")
             return None, None
 
         except Exception as e:
-            logger.error(f"❌ Erro ao comprar número: {str(e)}")
+            logger.error(f"[ERRO] Erro ao comprar número: {str(e)}")
             return None, None
 
     def get_sms_code(self, activation_id, max_attempts=10, interval=10):
@@ -214,7 +214,7 @@ class SMSAPI:
                 if response.status_code == 200:
                     if 'STATUS_OK' in response.text:
                         _, code = response.text.split(':')
-                        logger.info(f"✅ Código recebido: {code}")
+                        logger.info(f"[OK] Código recebido: {code}")
                         # Confirmação de código recebido
                         self.set_status(activation_id, 3)
                         return code
@@ -256,17 +256,17 @@ class SMSAPI:
             if response.status_code == 200:
                 if "ACCESS_CANCEL" in response.text:
                     logger.info(
-                        f"✅ Número {activation_id} cancelado com sucesso.")
+                        f"[OK] Número {activation_id} cancelado com sucesso.")
                     return True
                 elif "NO_ACTIVATION" in response.text:
                     logger.warning(
                         f"⚠️ Não foi possível cancelar o número {activation_id}. Ele pode já estar expirado ou inválido.")
                 else:
                     logger.error(
-                        f"❌ Erro ao cancelar o número {activation_id}: {response.text}")
+                        f"[ERRO] Erro ao cancelar o número {activation_id}: {response.text}")
             else:
                 logger.error(
-                    f"❌ Erro de conexão ao tentar cancelar o número {activation_id}: {response.status_code}")
+                    f"[ERRO] Erro de conexão ao tentar cancelar o número {activation_id}: {response.status_code}")
         except Exception as e:
             logger.error(f"Erro ao definir status da ativação: {str(e)}")
 
@@ -297,11 +297,11 @@ class SMSAPI:
             response = requests.get(BASE_URL, params=params, timeout=10)
             if "ACCESS_EXTRA_SERVICE" in response.text:
                 logger.info(
-                    f"✅ Número reutilizado com sucesso para {new_service} (ID: {activation_id})")
+                    f"[OK] Número reutilizado com sucesso para {new_service} (ID: {activation_id})")
                 return True
             else:
                 logger.warning(
-                    f"❌ Falha ao reutilizar número para {new_service}: {response.text}")
+                    f"[ERRO] Falha ao reutilizar número para {new_service}: {response.text}")
                 return False
         except Exception as e:
             logger.error(f"Erro ao reutilizar número: {str(e)}")
@@ -322,10 +322,10 @@ class SMSAPI:
 
             if not all_prices:
                 logger.error(
-                    f"❌ Erro: Não foi possível obter os preços para o serviço {service}.")
+                    f"[ERRO] Erro: Não foi possível obter os preços para o serviço {service}.")
                 return []
 
-            logger.info(f"📊 🔍 Dados brutos retornados pela API para {service}")
+            logger.info(f"📊 [BUSCA] Dados brutos retornados pela API para {service}")
             service_prices = []
 
             # Filtrar apenas os países selecionados
@@ -347,7 +347,7 @@ class SMSAPI:
                         })
 
                         logger.info(
-                            f"✅ {country_name}: {price_rub} RUB ({available_count} disponíveis)")
+                            f"[OK] {country_name}: {price_rub} RUB ({available_count} disponíveis)")
 
                     except (ValueError, KeyError) as e:
                         logger.warning(
@@ -365,7 +365,7 @@ class SMSAPI:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao comparar preços nos países selecionados para {service}: {str(e)}")
+                f"[ERRO] Erro ao comparar preços nos países selecionados para {service}: {str(e)}")
             return []
 
     # Alias para manter compatibilidade com código existente
@@ -420,7 +420,7 @@ class SMSAPI:
 
         try:
             logger.info(
-                f"🔍 Buscando número multi-serviço para {services_str} no país {country}...")
+                f"[BUSCA] Buscando número multi-serviço para {services_str} no país {country}...")
             if operator:
                 logger.info(f"📱 Operadora especificada: {operator}")
             if max_price:
@@ -432,8 +432,8 @@ class SMSAPI:
             if "ACCESS_NUMBER" in response_text:
                 _, activation_id, phone_number = response_text.split(":")
                 logger.info(
-                    f"✅ Número multi-serviço comprado com sucesso: {phone_number} (ID: {activation_id})")
-                logger.info(f"✅ Serviços habilitados: {services_str}")
+                    f"[OK] Número multi-serviço comprado com sucesso: {phone_number} (ID: {activation_id})")
+                logger.info(f"[OK] Serviços habilitados: {services_str}")
 
                 # Validar dados antes de retornar
                 if not all([activation_id, phone_number]):
@@ -453,14 +453,14 @@ class SMSAPI:
 
             for error_code, message in error_messages.items():
                 if error_code in response_text:
-                    logger.error(f"❌ {message}")
+                    logger.error(f"[ERRO] {message}")
                     return None, None
 
-            logger.error(f"❌ Erro desconhecido: {response_text}")
+            logger.error(f"[ERRO] Erro desconhecido: {response_text}")
             return None, None
 
         except Exception as e:
-            logger.error(f"❌ Erro ao comprar número multi-serviço: {str(e)}")
+            logger.error(f"[ERRO] Erro ao comprar número multi-serviço: {str(e)}")
             return None, None
 
     def buy_number_with_webhook(self, service, country, webhook_url):
@@ -492,7 +492,7 @@ class SMSAPI:
             if "ACCESS_NUMBER" in response_text:
                 _, activation_id, phone_number = response_text.split(":")
                 logger.info(
-                    f"✅ Número comprado com webhook: {phone_number} (ID: {activation_id})")
+                    f"[OK] Número comprado com webhook: {phone_number} (ID: {activation_id})")
 
                 # Registrar o webhook para este activation_id
                 self._register_webhook_callback(activation_id, webhook_url)
@@ -510,14 +510,14 @@ class SMSAPI:
             for error_code, message in error_messages.items():
                 if error_code in response_text:
                     logger.error(
-                        f"❌ {message} para {service} no país {country}")
+                        f"[ERRO] {message} para {service} no país {country}")
                     return None, None
 
-            logger.error(f"❌ Erro desconhecido: {response_text}")
+            logger.error(f"[ERRO] Erro desconhecido: {response_text}")
             return None, None
 
         except Exception as e:
-            logger.error(f"❌ Erro ao comprar número com webhook: {str(e)}")
+            logger.error(f"[ERRO] Erro ao comprar número com webhook: {str(e)}")
             return None, None
 
     def buy_multi_service_with_webhook(self, services, country, webhook_url):
@@ -553,8 +553,8 @@ class SMSAPI:
             if "ACCESS_NUMBER" in response_text:
                 _, activation_id, phone_number = response_text.split(":")
                 logger.info(
-                    f"✅ Número multi-serviço com webhook: {phone_number} (ID: {activation_id})")
-                logger.info(f"✅ Serviços habilitados: {services_str}")
+                    f"[OK] Número multi-serviço com webhook: {phone_number} (ID: {activation_id})")
+                logger.info(f"[OK] Serviços habilitados: {services_str}")
 
                 # Registrar o webhook para este activation_id
                 self._register_webhook_callback(activation_id, webhook_url)
@@ -571,15 +571,15 @@ class SMSAPI:
 
             for error_code, message in error_messages.items():
                 if error_code in response_text:
-                    logger.error(f"❌ {message}")
+                    logger.error(f"[ERRO] {message}")
                     return None, None
 
-            logger.error(f"❌ Erro desconhecido: {response_text}")
+            logger.error(f"[ERRO] Erro desconhecido: {response_text}")
             return None, None
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao comprar número multi-serviço com webhook: {str(e)}")
+                f"[ERRO] Erro ao comprar número multi-serviço com webhook: {str(e)}")
             return None, None
 
     def _register_webhook_callback(self, activation_id, webhook_url):
@@ -608,7 +608,7 @@ class SMSAPI:
             with open(config_path, 'w') as f:
                 json.dump(callbacks, f)
 
-            logger.info(f"✅ Webhook registrado para ativação {activation_id}")
+            logger.info(f"[OK] Webhook registrado para ativação {activation_id}")
 
         except Exception as e:
-            logger.error(f"❌ Erro ao registrar webhook: {str(e)}")
+            logger.error(f"[ERRO] Erro ao registrar webhook: {str(e)}")

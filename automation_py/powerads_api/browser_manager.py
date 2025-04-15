@@ -37,7 +37,7 @@ class BrowserManager:
             config: Instância de BrowserConfig com as configurações desejadas
         """
         self.browser_config = config
-        logger.info(f"✅ Configurações do navegador atualizadas: {config}")
+        logger.info(f"[OK] Configurações do navegador atualizadas: {config}")
 
     def start_browser(self, user_id: str) -> Tuple[bool, Optional[Dict]]:
         """
@@ -60,14 +60,14 @@ class BrowserManager:
             if success:
                 self.current_browser_info = browser_info
                 logger.info(
-                    f"✅ Navegador iniciado com sucesso: {'(headless)' if self.browser_config.headless else '(normal)'}")
+                    f"[OK] Navegador iniciado com sucesso: {'(headless)' if self.browser_config.headless else '(normal)'}")
             else:
-                logger.error("❌ Falha ao iniciar o navegador")
+                logger.error("[ERRO] Falha ao iniciar o navegador")
 
             return success, browser_info
 
         except Exception as e:
-            logger.error(f"❌ Erro ao iniciar o navegador: {str(e)}")
+            logger.error(f"[ERRO] Erro ao iniciar o navegador: {str(e)}")
             return False, None
 
     def close_browser(self, user_id: str) -> bool:
@@ -84,10 +84,10 @@ class BrowserManager:
             success = self.ads_power_api.close_browser(user_id)
             if success:
                 self.current_browser_info = None
-                logger.info("✅ Navegador fechado com sucesso")
+                logger.info("[OK] Navegador fechado com sucesso")
             return success
         except Exception as e:
-            logger.error(f"❌ Erro ao fechar o navegador: {str(e)}")
+            logger.error(f"[ERRO] Erro ao fechar o navegador: {str(e)}")
             return False
 
     def get_current_browser_info(self) -> Optional[Dict]:
@@ -122,7 +122,7 @@ class BrowserManager:
             if not self.is_browser_running():
                 success, browser_info = self.start_browser(user_id)
                 if not success:
-                    logger.error("❌ Falha ao iniciar o browser")
+                    logger.error("[ERRO] Falha ao iniciar o browser")
                     return False
 
                 # Tentar conectar ao Selenium
@@ -130,21 +130,21 @@ class BrowserManager:
                 webdriver_path = browser_info.get("webdriver_path")
 
                 if not selenium_ws or not webdriver_path:
-                    logger.error("❌ Informações do WebDriver incompletas")
+                    logger.error("[ERRO] Informações do WebDriver incompletas")
                     return False
 
                 self.driver = connect_selenium(selenium_ws, webdriver_path)
                 if not self.driver:
-                    logger.error("❌ Falha ao conectar ao Selenium WebDriver")
+                    logger.error("[ERRO] Falha ao conectar ao Selenium WebDriver")
                     return False
 
-                logger.info("✅ Browser iniciado e conectado com sucesso")
+                logger.info("[OK] Browser iniciado e conectado com sucesso")
                 return True
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar estado do browser: {str(e)}")
+            logger.error(f"[ERRO] Erro ao verificar estado do browser: {str(e)}")
             return False
 
     def get_driver(self) -> Optional[WebDriver]:
@@ -175,20 +175,20 @@ def start_browser(base_url, headers, user_id):
 
     if response.status_code != 200:
         print(
-            f"❌ Erro ao iniciar o navegador: {response.status_code} - {response.text}")
+            f"[ERRO] Erro ao iniciar o navegador: {response.status_code} - {response.text}")
         return None
 
     try:
         response_json = response.json()
         if response_json.get("code") != 0:
-            print(f"❌ Erro ao iniciar o navegador: {response_json.get('msg')}")
+            print(f"[ERRO] Erro ao iniciar o navegador: {response_json.get('msg')}")
             return None
     except requests.exceptions.JSONDecodeError:
-        print(f"❌ Erro ao converter resposta em JSON: {response.text}")
+        print(f"[ERRO] Erro ao converter resposta em JSON: {response.text}")
         return None
 
     print(
-        f"🚀 Navegador iniciado para o perfil {user_id}. Aguardando WebDriver...")
+        f"[INICIO] Navegador iniciado para o perfil {user_id}. Aguardando WebDriver...")
 
     # 2️⃣ Aguardar até 15 segundos para obter WebSocket Selenium
     for tentativa in range(15):
@@ -199,14 +199,14 @@ def start_browser(base_url, headers, user_id):
 
         if browser_info["status"] == "success" and browser_info["selenium_ws"]:
             print(
-                f"✅ WebSocket Selenium obtido: {browser_info['selenium_ws']}")
-            print(f"✅ Caminho do WebDriver: {browser_info['webdriver_path']}")
+                f"[OK] WebSocket Selenium obtido: {browser_info['selenium_ws']}")
+            print(f"[OK] Caminho do WebDriver: {browser_info['webdriver_path']}")
             return browser_info  # Retorna WebSocket Selenium e caminho do WebDriver
 
         print(
             f"⚠️ Tentativa {tentativa + 1}: WebDriver ainda não disponível...")
 
-    print("❌ Não foi possível obter o WebSocket do Selenium.")
+    print("[ERRO] Não foi possível obter o WebSocket do Selenium.")
     return None
 
 
@@ -226,19 +226,19 @@ def stop_browser(base_url, headers, user_id):
     response = requests.get(url_stop, headers=headers)
 
     if response.status_code != 200:
-        print(f"❌ Erro ao fechar o navegador: {response.status_code} - {response.text}")
+        print(f"[ERRO] Erro ao fechar o navegador: {response.status_code} - {response.text}")
         return False
 
     try:
         response_json = response.json()
         if response_json.get("code") != 0:
-            print(f"❌ Erro ao fechar o navegador: {response_json.get('msg')}")
+            print(f"[ERRO] Erro ao fechar o navegador: {response_json.get('msg')}")
             return False
     except requests.exceptions.JSONDecodeError:
-        print(f"❌ Erro ao converter resposta em JSON: {response.text}")
+        print(f"[ERRO] Erro ao converter resposta em JSON: {response.text}")
         return False
 
-    print(f"✅ Navegador do perfil {user_id} fechado com sucesso!")
+    print(f"[OK] Navegador do perfil {user_id} fechado com sucesso!")
     return True
     """
 
@@ -269,7 +269,7 @@ def get_active_browser_info(base_url, headers, user_id):
     if response_json.get("code") != 0:
         return {"status": "error", "message": response_json.get("msg", "Erro desconhecido.")}
 
-    # 🔍 Buscar o navegador correspondente ao user_id
+    # [BUSCA] Buscar o navegador correspondente ao user_id
     for browser in response_json.get("data", {}).get("list", []):
         if browser.get("user_id") == user_id:
             return {
@@ -298,8 +298,8 @@ def connect_selenium(selenium_ws, webdriver_path):
         options.add_experimental_option("debuggerAddress", selenium_ws)
 
         driver = webdriver.Chrome(service=service, options=options)
-        print("✅ Conectado ao WebDriver Selenium do AdsPower!")
+        print("[OK] Conectado ao WebDriver Selenium do AdsPower!")
         return driver
     except Exception as e:
-        print(f"❌ Erro ao conectar ao WebDriver: {e}")
+        print(f"[ERRO] Erro ao conectar ao WebDriver: {e}")
         return None

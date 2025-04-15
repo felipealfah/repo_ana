@@ -94,10 +94,10 @@ class AdsPowerManager:
                 response = requests.get(f"{url}/status", timeout=2)
                 if response.status_code == 200:
                     self.base_url = url
-                    logger.info(f"✅ Conexão bem-sucedida com: {url}")
+                    logger.info(f"[OK] Conexão bem-sucedida com: {url}")
                     return
             except Exception as e:
-                logger.warning(f"❌ Falha ao conectar em {url}: {str(e)}")
+                logger.warning(f"[ERRO] Falha ao conectar em {url}: {str(e)}")
 
         # Se nenhum funcionou, use um padrão
         self.base_url = "http://local.adspower.net:50325"
@@ -110,7 +110,7 @@ class AdsPowerManager:
             # Tente uma requisição simples para verificar a conectividade
             response = requests.get(f"{self.base_url}/status", timeout=5)
             if response.status_code == 200:
-                logger.info(f"✅ Conectado ao AdsPower em {self.base_url}")
+                logger.info(f"[OK] Conectado ao AdsPower em {self.base_url}")
             else:
                 logger.warning(
                     f"⚠️ AdsPower respondeu com status {response.status_code}")
@@ -127,12 +127,12 @@ class AdsPowerManager:
                         if alt_response.status_code == 200:
                             self.base_url = alt_url
                             logger.info(
-                                f"✅ Conexão alternativa bem-sucedida com: {alt_url}")
+                                f"[OK] Conexão alternativa bem-sucedida com: {alt_url}")
                     except Exception:
-                        logger.warning("❌ Conexão alternativa também falhou")
+                        logger.warning("[ERRO] Conexão alternativa também falhou")
 
         except Exception as e:
-            logger.error(f"❌ Erro ao conectar ao AdsPower: {str(e)}")
+            logger.error(f"[ERRO] Erro ao conectar ao AdsPower: {str(e)}")
             logger.error(f"   URL tentada: {self.base_url}")
             logger.error(
                 "   Verifique se o AdsPower está instalado e em execução no sistema host.")
@@ -147,9 +147,9 @@ class AdsPowerManager:
                     if alt_response.status_code == 200:
                         self.base_url = alt_url
                         logger.info(
-                            f"✅ Conexão alternativa bem-sucedida com: {alt_url}")
+                            f"[OK] Conexão alternativa bem-sucedida com: {alt_url}")
                 except Exception:
-                    logger.warning("❌ Conexão alternativa também falhou")
+                    logger.warning("[ERRO] Conexão alternativa também falhou")
 
     def _load_cache(self) -> Dict:
         """Carrega o cache local de informações do AdsPower."""
@@ -215,7 +215,7 @@ class AdsPowerManager:
                     self.cache["service_status"]["available"] = True
                     self.cache["service_status"]["last_checked"] = current_time
                     self._save_cache()
-                    logger.info("✅ API do AdsPower está saudável")
+                    logger.info("[OK] API do AdsPower está saudável")
                     return True
 
             # API não está saudável
@@ -232,7 +232,7 @@ class AdsPowerManager:
             self.cache["service_status"]["last_checked"] = current_time
             self._save_cache()
             logger.error(
-                f"❌ Erro ao verificar saúde da API do AdsPower: {str(e)}")
+                f"[ERRO] Erro ao verificar saúde da API do AdsPower: {str(e)}")
             return False
 
     def get_all_profiles(self, force_refresh=False) -> List[Dict]:
@@ -288,7 +288,7 @@ class AdsPowerManager:
                     break
 
             except Exception as e:
-                logger.error(f"❌ Erro ao buscar perfis: {str(e)}")
+                logger.error(f"[ERRO] Erro ao buscar perfis: {str(e)}")
                 break
 
         # Atualizar timestamp do cache
@@ -333,7 +333,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao buscar informações do perfil {user_id}: {str(e)}")
+                f"[ERRO] Erro ao buscar informações do perfil {user_id}: {str(e)}")
             return None
 
     def is_browser_running(self, user_id: str) -> bool:
@@ -367,7 +367,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao verificar status do navegador para {user_id}: {str(e)}")
+                f"[ERRO] Erro ao verificar status do navegador para {user_id}: {str(e)}")
             return False
 
     def start_browser(self, user_id: str, headless: bool = False, max_wait_time: int = 30) -> Tuple[bool, Optional[Dict]]:
@@ -385,7 +385,7 @@ class AdsPowerManager:
         # Verificar se já está em execução
         if self.is_browser_running(user_id):
             logger.info(
-                f"✅ Navegador para perfil {user_id} já está em execução")
+                f"[OK] Navegador para perfil {user_id} já está em execução")
             browser_info = self.get_browser_info(user_id)
             return True, browser_info
 
@@ -398,16 +398,16 @@ class AdsPowerManager:
 
             if response.status_code != 200:
                 logger.error(
-                    f"❌ Erro ao iniciar navegador: HTTP {response.status_code}")
+                    f"[ERRO] Erro ao iniciar navegador: HTTP {response.status_code}")
                 return False, None
 
             data = response.json()
             if data.get("code") != 0:
-                logger.error(f"❌ Erro ao iniciar navegador: {data.get('msg')}")
+                logger.error(f"[ERRO] Erro ao iniciar navegador: {data.get('msg')}")
                 return False, None
 
             logger.info(
-                f"🚀 Iniciando navegador para perfil {user_id} {'(headless)' if headless else ''}")
+                f"[INICIO] Iniciando navegador para perfil {user_id} {'(headless)' if headless else ''}")
 
             # Aguardar até o navegador estar pronto
             start_time = time.time()
@@ -418,7 +418,7 @@ class AdsPowerManager:
                 if browser_info and browser_info.get("selenium_ws"):
                     # Navegador está pronto
                     self.active_browsers[user_id] = browser_info
-                    logger.info(f"✅ Navegador pronto para perfil {user_id}")
+                    logger.info(f"[OK] Navegador pronto para perfil {user_id}")
                     return True, browser_info
 
             # Timeout - navegador não ficou pronto no tempo esperado
@@ -428,7 +428,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao iniciar navegador para perfil {user_id}: {str(e)}")
+                f"[ERRO] Erro ao iniciar navegador para perfil {user_id}: {str(e)}")
             return False, None
 
     def stop_browser(self, user_id: str) -> bool:
@@ -454,7 +454,7 @@ class AdsPowerManager:
                         del self.active_browsers[user_id]
 
                     logger.info(
-                        f"✅ Navegador para perfil {user_id} parado com sucesso")
+                        f"[OK] Navegador para perfil {user_id} parado com sucesso")
                     return True
 
             logger.warning(
@@ -463,7 +463,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao parar navegador para perfil {user_id}: {str(e)}")
+                f"[ERRO] Erro ao parar navegador para perfil {user_id}: {str(e)}")
             return False
 
     def close_browser(self, user_id: str) -> bool:
@@ -489,7 +489,7 @@ class AdsPowerManager:
                         del self.active_browsers[user_id]
 
                     logger.info(
-                        f"✅ Navegador para perfil {user_id} fechado com sucesso")
+                        f"[OK] Navegador para perfil {user_id} fechado com sucesso")
                     return True
 
             logger.warning(
@@ -498,7 +498,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao fechar navegador para perfil {user_id}: {str(e)}")
+                f"[ERRO] Erro ao fechar navegador para perfil {user_id}: {str(e)}")
             return False
 
     def get_browser_info(self, user_id: str) -> Optional[Dict]:
@@ -539,7 +539,7 @@ class AdsPowerManager:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao obter informações do navegador para {user_id}: {str(e)}")
+                f"[ERRO] Erro ao obter informações do navegador para {user_id}: {str(e)}")
             return None
 
     def connect_selenium(self, browser_info: Dict) -> Optional[webdriver.Chrome]:
@@ -556,7 +556,7 @@ class AdsPowerManager:
         webdriver_path = browser_info.get("webdriver_path")
 
         if not selenium_ws or not webdriver_path:
-            logger.error("❌ Informações de WebDriver incompletas")
+            logger.error("[ERRO] Informações de WebDriver incompletas")
             return None
 
         try:
@@ -565,11 +565,11 @@ class AdsPowerManager:
             options.add_experimental_option("debuggerAddress", selenium_ws)
 
             driver = webdriver.Chrome(service=service, options=options)
-            logger.info("✅ Conectado ao WebDriver Selenium do AdsPower")
+            logger.info("[OK] Conectado ao WebDriver Selenium do AdsPower")
             return driver
 
         except Exception as e:
-            logger.error(f"❌ Erro ao conectar ao WebDriver: {str(e)}")
+            logger.error(f"[ERRO] Erro ao conectar ao WebDriver: {str(e)}")
             return None
 
     def get_create_profile_stats(self, user_id: str) -> Dict:

@@ -62,20 +62,20 @@ class GmailCreator:
         """
         try:
             if not self.browser_manager.ensure_browser_ready(user_id):
-                logger.error("❌ Falha ao garantir que o browser está pronto")
+                logger.error("[ERRO] Falha ao garantir que o browser está pronto")
                 return False
 
             self.driver = self.browser_manager.get_driver()
             if not self.driver:
-                logger.error("❌ Driver não disponível")
+                logger.error("[ERRO] Driver não disponível")
                 return False
 
             self.wait = WebDriverWait(self.driver, timeouts.DEFAULT_WAIT)
-            logger.info("✅ Browser inicializado com sucesso")
+            logger.info("[OK] Browser inicializado com sucesso")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao inicializar browser: {str(e)}")
+            logger.error(f"[ERRO] Erro ao inicializar browser: {str(e)}")
             return False
 
     def create_account(self, user_id: str, phone_params=None):
@@ -90,11 +90,11 @@ class GmailCreator:
             tuple: (sucesso, dados_da_conta)
         """
         try:
-            logger.info("🚀 Iniciando criação da conta Gmail...")
+            logger.info("[INICIO] Iniciando criação da conta Gmail...")
 
             # Inicializar o browser primeiro
             if not self.initialize_browser(user_id):
-                raise GmailCreationError("❌ Falha ao inicializar o browser")
+                raise GmailCreationError("[ERRO] Falha ao inicializar o browser")
 
             # Contador para tentativas de criação completa da conta
             complete_attempts = 0
@@ -111,7 +111,7 @@ class GmailCreator:
                     account_setup = AccountSetup(self.driver, self.credentials)
                     if not account_setup.start_setup():
                         raise GmailCreationError(
-                            "❌ Falha na configuração inicial da conta.")
+                            "[ERRO] Falha na configuração inicial da conta.")
 
                     # Passo 2: Verificação de telefone
                     self.state = GmailCreationState.PHONE_VERIFICATION
@@ -161,7 +161,7 @@ class GmailCreator:
                         phone_data = phone_verify.get_current_phone_data()
                         if not phone_data:
                             logger.error(
-                                "❌ Falha ao obter dados do telefone após verificação")
+                                "[ERRO] Falha ao obter dados do telefone após verificação")
                             continue  # Tenta novamente o processo completo
                     else:
                         logger.info(
@@ -242,19 +242,19 @@ class GmailCreator:
                     }
 
                     logger.info(
-                        f"✅ Conta criada com sucesso! Retornando os dados: {account_data}")
+                        f"[OK] Conta criada com sucesso! Retornando os dados: {account_data}")
                     return True, account_data
 
                 except Exception as inner_e:
                     logger.error(
-                        f"❌ Erro durante a tentativa {complete_attempts}: {str(inner_e)}")
+                        f"[ERRO] Erro durante a tentativa {complete_attempts}: {str(inner_e)}")
                     if complete_attempts < max_complete_attempts:
                         logger.info("🔄 Reiniciando processo completo...")
                         self.driver.get("https://accounts.google.com/signup")
                         time.sleep(5)
                     else:
                         logger.error(
-                            f"❌ Todas as {max_complete_attempts} tentativas completas falharam")
+                            f"[ERRO] Todas as {max_complete_attempts} tentativas completas falharam")
                         raise GmailCreationError(
                             f"Falha após {max_complete_attempts} tentativas completas")
 
@@ -266,5 +266,5 @@ class GmailCreator:
             return False, None
 
         except Exception as e:
-            logger.error(f"❌ Erro inesperado: {str(e)}")
+            logger.error(f"[ERRO] Erro inesperado: {str(e)}")
             return False, None

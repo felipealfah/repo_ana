@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-# ✅ Importações corrigidas
+# [OK] Importações corrigidas
 from .exceptions import AccountVerificationError
 from .config import timeouts
 from .locators import verification_locators, account_locators, phone_locators, terms_locators
@@ -30,13 +30,13 @@ class AccountVerify:
     def verify_account(self) -> bool:
         """Verifica se a conta foi criada com sucesso e retorna o status."""
         try:
-            logger.info("🔍 Verificando se a conta foi criada com sucesso...")
+            logger.info("[BUSCA] Verificando se a conta foi criada com sucesso...")
             time.sleep(5)
             current_url = self.driver.current_url
 
             if "myaccount.google.com" in current_url:
                 logger.info(
-                    "✅ Conta criada com sucesso! Redirecionado para Google Account.")
+                    "[OK] Conta criada com sucesso! Redirecionado para Google Account.")
                 success = self._redirect_to_gmail()
                 self.verification_completed = success
                 return success
@@ -48,7 +48,7 @@ class AccountVerify:
             return success
 
         except Exception as e:
-            logger.error(f"❌ Erro na verificação da conta: {str(e)}")
+            logger.error(f"[ERRO] Erro na verificação da conta: {str(e)}")
             raise AccountVerificationError(
                 f"Erro ao verificar conta: {str(e)}")
 
@@ -62,7 +62,7 @@ class AccountVerify:
 
             if "mail.google.com" in self.driver.current_url:
                 logger.info(
-                    "✅ Gmail carregado com sucesso! Conta operacional.")
+                    "[OK] Gmail carregado com sucesso! Conta operacional.")
                 # NÃO salva as credenciais aqui - isso será feito explicitamente pela classe GmailCreator
                 return True
 
@@ -71,7 +71,7 @@ class AccountVerify:
             return False
 
         except TimeoutException:
-            logger.error("❌ Timeout ao tentar acessar o Gmail.")
+            logger.error("[ERRO] Timeout ao tentar acessar o Gmail.")
             return False
 
     def get_account_data(self):
@@ -92,17 +92,17 @@ class AccountVerify:
         """Salva as credenciais com validação de dados."""
         try:
             if not all([self.phone_number, self.profile_name]):
-                logger.error("❌ Dados incompletos para salvar conta")
+                logger.error("[ERRO] Dados incompletos para salvar conta")
                 return False
 
             account_data = self.get_account_data()
             if not account_data:
-                logger.error("❌ Falha ao obter dados da conta")
+                logger.error("[ERRO] Falha ao obter dados da conta")
                 return False
 
             # Validar dados críticos
             if account_data["phone"] == "unknown" or account_data["email"] == "unknown":
-                logger.error("❌ Dados críticos ausentes ou inválidos")
+                logger.error("[ERRO] Dados críticos ausentes ou inválidos")
                 return False
 
             # Verificação de flag para evitar salvamentos duplicados
@@ -192,14 +192,14 @@ class AccountVerify:
                         file.write(json.dumps(existing_accounts, indent=4))
 
                 logger.info(
-                    f"✅ Credenciais salvas com sucesso em {credentials_path}")
+                    f"[OK] Credenciais salvas com sucesso em {credentials_path}")
                 self.credentials_saved = True
                 return True
 
             except Exception as e:
-                logger.error(f"❌ Erro ao salvar credenciais: {str(e)}")
+                logger.error(f"[ERRO] Erro ao salvar credenciais: {str(e)}")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao salvar conta: {str(e)}")
+            logger.error(f"[ERRO] Erro ao salvar conta: {str(e)}")
             return False

@@ -100,10 +100,10 @@ class TermsHandler:
             for selector in checkbox_selectors:
                 if self._element_exists(selector, timeout=2):
                     logger.info(
-                        f"✅ Detectado checkbox logo de início: {selector}")
-                    logger.info("✅ Tela identificada como tela de CHECKBOXES")
+                        f"[OK] Detectado checkbox logo de início: {selector}")
+                    logger.info("[OK] Tela identificada como tela de CHECKBOXES")
                     if self._handle_checkbox_terms():
-                        logger.info("✅ Checkboxes tratados com sucesso!")
+                        logger.info("[OK] Checkboxes tratados com sucesso!")
                         account_created = self._check_account_created()
                         if account_created:
                             self._delete_screenshots()
@@ -113,7 +113,7 @@ class TermsHandler:
             # 4. Verificar se a tela "Privacy and Terms" carrega
             logger.info("📌 Tentando verificar tela 'Privacy and Terms'...")
             if self._handle_privacy_and_terms_screen():
-                logger.info("✅ Tela 'Privacy and Terms' identificada!")
+                logger.info("[OK] Tela 'Privacy and Terms' identificada!")
                 # Verificar se a conta foi criada com sucesso
                 account_created = self._check_account_created()
                 if account_created:
@@ -142,7 +142,7 @@ class TermsHandler:
             # Definir o tipo de tela com base na contagem de checkboxes
             if checkbox_count > 0:
                 logger.info(
-                    f"✅ Detectada tela com checkboxes ({checkbox_count} encontrados)")
+                    f"[OK] Detectada tela com checkboxes ({checkbox_count} encontrados)")
                 is_checkbox = True
                 is_traditional = False
             else:
@@ -161,7 +161,7 @@ class TermsHandler:
                 # Em caso de conflito, fazer verificação adicional
                 if self._count_visible_checkboxes() > 0:
                     logger.info(
-                        "✅ Resolvendo conflito: detectados checkboxes visíveis")
+                        "[OK] Resolvendo conflito: detectados checkboxes visíveis")
                     is_checkbox = True
                     is_traditional = False
                 else:
@@ -173,34 +173,34 @@ class TermsHandler:
 
                     if any(indicator in page_text for indicator in checkbox_indicators):
                         logger.info(
-                            "✅ Resolvendo conflito: texto sugere tela de checkboxes")
+                            "[OK] Resolvendo conflito: texto sugere tela de checkboxes")
                         is_checkbox = True
                         is_traditional = False
                     else:
                         logger.info(
-                            "✅ Resolvendo conflito: assumindo tela tradicional")
+                            "[OK] Resolvendo conflito: assumindo tela tradicional")
                         is_checkbox = False
                         is_traditional = True
 
             success = False
 
             if is_traditional:
-                logger.info("✅ Detectada tela tradicional de termos.")
+                logger.info("[OK] Detectada tela tradicional de termos.")
 
                 # Tentar clicar no botão "Concordo"
                 if self._click_agree_button():
                     logger.info(
-                        "✅ Botão 'Concordo' clicado com sucesso, verificando modal de confirmação...")
+                        "[OK] Botão 'Concordo' clicado com sucesso, verificando modal de confirmação...")
 
                     # Verificar se o modal de confirmação aparece
                     if self._handle_confirmation_modal():
                         logger.info(
-                            "✅ Modal de confirmação tratado com sucesso!")
+                            "[OK] Modal de confirmação tratado com sucesso!")
                         success = True
                     else:
                         # O modal pode não ter aparecido porque a conta já foi criada diretamente
                         logger.info(
-                            "🔍 Modal não encontrado, verificando se avançamos...")
+                            "[BUSCA] Modal não encontrado, verificando se avançamos...")
                         time.sleep(3)  # Aguardar processamento
 
                         # Verificar indicadores de que já passamos dessa tela
@@ -212,16 +212,16 @@ class TermsHandler:
                         still_on_terms = self._is_traditional_terms_screen()
                         if not still_on_terms:
                             logger.info(
-                                "✅ Avançamos da tela de termos tradicional com sucesso!")
+                                "[OK] Avançamos da tela de termos tradicional com sucesso!")
                             success = True
 
             elif is_checkbox:
-                logger.info("✅ Detectada tela de termos com checkboxes")
+                logger.info("[OK] Detectada tela de termos com checkboxes")
 
                 # Tentar marcar os checkboxes e clicar no botão
                 if self._handle_checkbox_terms():
                     logger.info(
-                        "✅ Termos com checkboxes tratados com sucesso!")
+                        "[OK] Termos com checkboxes tratados com sucesso!")
                     success = True
 
             else:
@@ -232,11 +232,11 @@ class TermsHandler:
                 # Tentar abordagem de tela tradicional primeiro
                 if self._click_agree_button():
                     logger.info(
-                        "✅ Botão 'Concordo' clicado com abordagem tradicional")
+                        "[OK] Botão 'Concordo' clicado com abordagem tradicional")
 
                     # Verificar se o modal aparece
                     if self._handle_confirmation_modal():
-                        logger.info("✅ Modal tratado com sucesso!")
+                        logger.info("[OK] Modal tratado com sucesso!")
                         success = True
 
                     # Verificar se avançamos mesmo sem modal
@@ -248,16 +248,16 @@ class TermsHandler:
 
                     for indicator in success_indicators:
                         if self._element_exists(indicator, timeout=2):
-                            logger.info("✅ Avançamos sem modal!")
+                            logger.info("[OK] Avançamos sem modal!")
                             success = True
 
                 # Se não funcionou, tentar abordagem de checkboxes
                 if self._handle_checkbox_terms():
-                    logger.info("✅ Checkboxes tratados com sucesso!")
+                    logger.info("[OK] Checkboxes tratados com sucesso!")
                     success = True
 
                 logger.error(
-                    "❌ Nenhuma abordagem funcionou para tratar os termos.")
+                    "[ERRO] Nenhuma abordagem funcionou para tratar os termos.")
                 success = False
 
             # Se a conta foi criada com sucesso, apagar os screenshots
@@ -270,7 +270,7 @@ class TermsHandler:
 
         except Exception as e:
             logger.error(
-                f"❌ Erro durante processo de aceitação de termos: {str(e)}")
+                f"[ERRO] Erro durante processo de aceitação de termos: {str(e)}")
             raise TermsAcceptanceError(
                 f"Falha no processo de aceitação de termos: {str(e)}")
 
@@ -288,7 +288,7 @@ class TermsHandler:
             for element in checkbox_elements:
                 if self._element_exists(element, timeout=2):
                     logger.info(
-                        f"✅ Elemento de checkbox encontrado: {element}")
+                        f"[OK] Elemento de checkbox encontrado: {element}")
                     # Tirar screenshot para confirmar visualmente
                     self._save_screenshot("confirmed_checkbox_screen")
                     return True
@@ -311,7 +311,7 @@ class TermsHandler:
             for indicator in checkbox_text_indicators:
                 if self._element_exists(indicator, timeout=2):
                     logger.info(
-                        f"✅ Indicador de texto para checkboxes encontrado: {indicator}")
+                        f"[OK] Indicador de texto para checkboxes encontrado: {indicator}")
                     # Tirar screenshot para confirmar visualmente
                     self._save_screenshot("text_indicator_checkbox_screen")
                     return True
@@ -326,7 +326,7 @@ class TermsHandler:
             for indicator in checkbox_button_indicators:
                 if self._element_exists(indicator, timeout=2):
                     logger.info(
-                        f"✅ Botão típico de tela com checkboxes encontrado: {indicator}")
+                        f"[OK] Botão típico de tela com checkboxes encontrado: {indicator}")
                     return True
 
             # Último recurso: verificar o texto completo da página
@@ -344,7 +344,7 @@ class TermsHandler:
                         traditional_elements = self._is_traditional_terms_screen()
                         if not traditional_elements:
                             logger.info(
-                                f"✅ Padrão de texto '{pattern}' encontrado e não é tela tradicional")
+                                f"[OK] Padrão de texto '{pattern}' encontrado e não é tela tradicional")
                             self._save_screenshot(
                                 "text_pattern_checkbox_screen")
                             return True
@@ -360,13 +360,13 @@ class TermsHandler:
                 iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
                 for i, iframe in enumerate(iframes):
                     self.driver.switch_to.frame(iframe)
-                    logger.info(f"🔍 Verificando iframe #{i+1}")
+                    logger.info(f"[BUSCA] Verificando iframe #{i+1}")
 
                     # Verificar checkboxes dentro do iframe
                     for element in checkbox_elements:
                         if self._element_exists(element, timeout=1):
                             logger.info(
-                                f"✅ Elemento de checkbox encontrado dentro do iframe: {element}")
+                                f"[OK] Elemento de checkbox encontrado dentro do iframe: {element}")
                             self.driver.switch_to.default_content()
                             return True
 
@@ -378,7 +378,7 @@ class TermsHandler:
             return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar tela de checkboxes: {str(e)}")
+            logger.error(f"[ERRO] Erro ao verificar tela de checkboxes: {str(e)}")
             return False
 
     def _handle_checkbox_terms(self) -> bool:
@@ -406,7 +406,7 @@ class TermsHandler:
                         # Registrar texto do elemento para debug
                         element_text = element.text.strip() if element.text else "Sem texto"
                         logger.info(
-                            f"🔍 Encontrado elemento de checkbox: '{element_text}'")
+                            f"[BUSCA] Encontrado elemento de checkbox: '{element_text}'")
 
                         # Scrollar até o elemento
                         self.driver.execute_script(
@@ -432,7 +432,7 @@ class TermsHandler:
                                 # Método 1: Clique direto
                                 element.click()
                                 logger.info(
-                                    f"✅ Clique direto bem-sucedido em: '{element_text}'")
+                                    f"[OK] Clique direto bem-sucedido em: '{element_text}'")
                             except Exception as e1:
                                 logger.warning(
                                     f"⚠️ Clique direto falhou: {str(e1)}")
@@ -441,21 +441,21 @@ class TermsHandler:
                                     self.driver.execute_script(
                                         "arguments[0].click();", element)
                                     logger.info(
-                                        f"✅ Clique via JavaScript bem-sucedido em: '{element_text}'")
+                                        f"[OK] Clique via JavaScript bem-sucedido em: '{element_text}'")
                                 except Exception as e2:
                                     logger.error(
-                                        f"❌ Ambos os métodos de clique falharam para: '{element_text}'")
+                                        f"[ERRO] Ambos os métodos de clique falharam para: '{element_text}'")
                                     continue
                         else:
                             logger.info(
-                                f"✅ Checkbox '{element_text}' já está marcado")
+                                f"[OK] Checkbox '{element_text}' já está marcado")
 
                         # Adicionar à lista de checkboxes marcados
                         marked_checkboxes.add(area_xpath)
 
                     except Exception as e:
                         logger.error(
-                            f"❌ Erro ao interagir com elemento {area_xpath}: {str(e)}")
+                            f"[ERRO] Erro ao interagir com elemento {area_xpath}: {str(e)}")
 
             # Verificar se conseguimos marcar todos os checkboxes específicos
             if len(marked_checkboxes) < len(specific_checkboxes):
@@ -483,7 +483,7 @@ class TermsHandler:
                 if self._element_exists(button_xpath, timeout=2):
                     try:
                         logger.info(
-                            f"🔍 Tentando clicar em botão: {button_xpath}")
+                            f"[BUSCA] Tentando clicar em botão: {button_xpath}")
                         button = self.driver.find_element(
                             By.XPATH, button_xpath)
 
@@ -525,7 +525,7 @@ class TermsHandler:
                                         self.driver.execute_script(
                                             "arguments[0].click();", element)
                                         logger.info(
-                                            f"✅ Remarcando checkbox: {checkbox}")
+                                            f"[OK] Remarcando checkbox: {checkbox}")
                                         marked_checkboxes.add(checkbox)
                                     except:
                                         pass
@@ -544,7 +544,7 @@ class TermsHandler:
                         # Método 1: Clique direto
                         button.click()
                         logger.info(
-                            f"✅ Clique direto bem-sucedido no botão: {button_text}")
+                            f"[OK] Clique direto bem-sucedido no botão: {button_text}")
                         button_clicked = True
 
                         # Tirar screenshot após o clique para diagnóstico
@@ -559,7 +559,7 @@ class TermsHandler:
                             self.driver.execute_script(
                                 "arguments[0].click();", button)
                             logger.info(
-                                f"✅ Clique via JavaScript bem-sucedido no botão: {button_text}")
+                                f"[OK] Clique via JavaScript bem-sucedido no botão: {button_text}")
                             button_clicked = True
 
                             # Tirar screenshot após o clique para diagnóstico
@@ -568,11 +568,11 @@ class TermsHandler:
                             break
                         except Exception as e2:
                             logger.error(
-                                f"❌ Ambos os métodos de clique falharam para o botão: {button_xpath}")
+                                f"[ERRO] Ambos os métodos de clique falharam para o botão: {button_xpath}")
 
             if not button_clicked:
                 logger.error(
-                    "❌ Não foi possível clicar no botão 'Criar conta'")
+                    "[ERRO] Não foi possível clicar no botão 'Criar conta'")
                 return False
 
             # Aguardar processamento após o clique no botão
@@ -584,7 +584,7 @@ class TermsHandler:
             for area_xpath in specific_checkboxes:
                 if self._element_exists(area_xpath, timeout=2):
                     logger.error(
-                        "❌ Ainda estamos na tela de checkboxes. O processo não avançou após o clique no botão.")
+                        "[ERRO] Ainda estamos na tela de checkboxes. O processo não avançou após o clique no botão.")
 
                     # Verificar novamente o estado dos checkboxes
                     for checkbox in specific_checkboxes:
@@ -618,7 +618,7 @@ class TermsHandler:
                                         self.driver.execute_script(
                                             "arguments[0].click();", element)
                                         logger.info(
-                                            f"✅ Remarcando checkbox antes da última tentativa")
+                                            f"[OK] Remarcando checkbox antes da última tentativa")
                                 except:
                                     pass
 
@@ -649,13 +649,13 @@ class TermsHandler:
 
                             if still_on_page:
                                 logger.error(
-                                    "❌ Ainda estamos na tela de checkboxes após última tentativa.")
+                                    "[ERRO] Ainda estamos na tela de checkboxes após última tentativa.")
                                 self._save_screenshot("failed_final_attempt")
                                 return False
                             else:
-                                logger.info("✅ Última tentativa bem-sucedida!")
+                                logger.info("[OK] Última tentativa bem-sucedida!")
                     except Exception as e:
-                        logger.error(f"❌ Falha na última tentativa: {str(e)}")
+                        logger.error(f"[ERRO] Falha na última tentativa: {str(e)}")
                         self._save_screenshot("failed_last_attempt")
                         return False
 
@@ -670,14 +670,14 @@ class TermsHandler:
 
             for indicator in success_indicators:
                 if self._element_exists(indicator, timeout=2):
-                    logger.info("✅ Detectado elemento pós-criação de conta!")
+                    logger.info("[OK] Detectado elemento pós-criação de conta!")
                     return True
 
-            logger.info("✅ Avançamos da tela de checkboxes com sucesso!")
+            logger.info("[OK] Avançamos da tela de checkboxes com sucesso!")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao manipular checkboxes: {str(e)}")
+            logger.error(f"[ERRO] Erro ao manipular checkboxes: {str(e)}")
             return False
 
     def _accept_terms(self) -> bool:
@@ -693,14 +693,14 @@ class TermsHandler:
                             By.XPATH, xpath)
                         if agree_button.is_displayed() and agree_button.is_enabled():
                             logger.info(
-                                f"✅ Botão 'Aceitar' encontrado com XPath: {xpath}")
+                                f"[OK] Botão 'Aceitar' encontrado com XPath: {xpath}")
 
                             # Tenta clicar com JavaScript para maior confiabilidade
                             self.driver.execute_script(
                                 "arguments[0].click();", agree_button)
                             time.sleep(2)
 
-                            logger.info("✅ Termos aceitos com sucesso.")
+                            logger.info("[OK] Termos aceitos com sucesso.")
                             self.terms_info.terms_accepted = True
                             return True
                 except Exception as e:
@@ -709,11 +709,11 @@ class TermsHandler:
                     continue
 
             # Se chegou aqui, nenhum botão foi encontrado
-            logger.error("❌ Botão de aceite dos termos não encontrado.")
+            logger.error("[ERRO] Botão de aceite dos termos não encontrado.")
             return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao aceitar termos: {str(e)}")
+            logger.error(f"[ERRO] Erro ao aceitar termos: {str(e)}")
             return False
 
     def _handle_confirmation_modal(self) -> bool:
@@ -737,18 +737,18 @@ class TermsHandler:
 
                 # Clicar no botão de confirmação
                 confirm_button.click()
-                logger.info("✅ Modal de confirmação fechado com sucesso.")
+                logger.info("[OK] Modal de confirmação fechado com sucesso.")
                 self.terms_info.confirmation_handled = True
                 time.sleep(2)  # Espera para processamento
                 return True
 
             logger.info(
-                "✅ Nenhum modal de confirmação encontrado, continuando...")
+                "[OK] Nenhum modal de confirmação encontrado, continuando...")
             self.terms_info.confirmation_handled = True
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar modal de confirmação: {str(e)}")
+            logger.error(f"[ERRO] Erro ao verificar modal de confirmação: {str(e)}")
             return False
 
     def _handle_review_page(self) -> bool:
@@ -769,7 +769,7 @@ class TermsHandler:
                                 "arguments[0].click();", next_button)
                             time.sleep(2)
                             logger.info(
-                                f"✅ Clicou no botão de confirmação de telefone: {xpath}")
+                                f"[OK] Clicou no botão de confirmação de telefone: {xpath}")
                             button_clicked = True
                             break
                 except Exception as e:
@@ -785,7 +785,7 @@ class TermsHandler:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro na tela de revisão: {str(e)}")
+            logger.error(f"[ERRO] Erro na tela de revisão: {str(e)}")
             return False
 
     def _click_agree_button(self) -> bool:
@@ -842,7 +842,7 @@ class TermsHandler:
             # Logar botões encontrados
             if buttons_found:
                 logger.info(
-                    f"🔍 Total de botões encontrados: {len(buttons_found)}")
+                    f"[BUSCA] Total de botões encontrados: {len(buttons_found)}")
                 for i, btn in enumerate(buttons_found):
                     logger.info(
                         f"📝 Botão #{i+1}: XPath='{btn['xpath']}', Texto='{btn['text']}', Classe='{btn['class']}'")
@@ -875,7 +875,7 @@ class TermsHandler:
                                 # Tentar clicar diretamente primeiro
                                 button.click()
                                 logger.info(
-                                    f"✅ Clique direto bem-sucedido no botão 'Concordo': {button_text}")
+                                    f"[OK] Clique direto bem-sucedido no botão 'Concordo': {button_text}")
 
                                 # Salvar screenshot após o clique
                                 self._save_screenshot("after_direct_click")
@@ -891,7 +891,7 @@ class TermsHandler:
                                     self.driver.execute_script(
                                         "arguments[0].click();", button)
                                     logger.info(
-                                        f"✅ Clique via JavaScript bem-sucedido no botão 'Concordo': {button_text}")
+                                        f"[OK] Clique via JavaScript bem-sucedido no botão 'Concordo': {button_text}")
 
                                     # Salvar screenshot após o clique
                                     self._save_screenshot("after_js_click")
@@ -901,10 +901,10 @@ class TermsHandler:
                                     return True
                                 except Exception as e2:
                                     logger.error(
-                                        f"❌ Falha em ambos os métodos de clique para: {xpath} - {button_text}")
+                                        f"[ERRO] Falha em ambos os métodos de clique para: {xpath} - {button_text}")
 
             # Se chegou aqui, nenhum botão foi encontrado
-            logger.error("❌ Nenhum botão 'Concordo' encontrado ou clicado.")
+            logger.error("[ERRO] Nenhum botão 'Concordo' encontrado ou clicado.")
 
             # Tentar um último recurso extremo: buscar qualquer botão na página
             try:
@@ -925,7 +925,7 @@ class TermsHandler:
                             self.driver.execute_script(
                                 "arguments[0].click();", btn)
                             logger.info(
-                                f"✅ Último recurso bem-sucedido no botão: {text}")
+                                f"[OK] Último recurso bem-sucedido no botão: {text}")
 
                             # Salvar screenshot após o clique
                             self._save_screenshot("after_last_resort_click")
@@ -935,12 +935,12 @@ class TermsHandler:
                             logger.warning(
                                 f"⚠️ Falha no último recurso para botão #{i+1}: {str(e)}")
             except Exception as e:
-                logger.error(f"❌ Erro no último recurso: {str(e)}")
+                logger.error(f"[ERRO] Erro no último recurso: {str(e)}")
 
             return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao clicar no botão 'I agree': {str(e)}")
+            logger.error(f"[ERRO] Erro ao clicar no botão 'I agree': {str(e)}")
             return False
 
     def _handle_privacy_and_terms_screen(self) -> bool:
@@ -974,7 +974,7 @@ class TermsHandler:
                     privacy_terms_found = True
                     identified_indicator = indicator
                     logger.info(
-                        f"✅ Tela de 'Termos e Privacidade' identificada com: {indicator}")
+                        f"[OK] Tela de 'Termos e Privacidade' identificada com: {indicator}")
                     break
 
             if not privacy_terms_found:
@@ -1003,7 +1003,7 @@ class TermsHandler:
             for selector in checkbox_selectors:
                 if self._element_exists(selector, timeout=2):
                     logger.info(
-                        f"✅ Detectado checkbox na tela de termos: {selector}")
+                        f"[OK] Detectado checkbox na tela de termos: {selector}")
                     has_checkboxes = True
                     self._save_screenshot("checkbox_detected_in_terms")
                     break
@@ -1016,13 +1016,13 @@ class TermsHandler:
 
             # Se não encontramos checkboxes, continuamos com o fluxo tradicional
             logger.info(
-                "🔍 Nenhum checkbox encontrado. Tratando como tela tradicional. Procurando botão 'Concordo'...")
+                "[BUSCA] Nenhum checkbox encontrado. Tratando como tela tradicional. Procurando botão 'Concordo'...")
 
             # Resto do código existente para tratar tela tradicional...
 
             # Se identificamos a tela, tentar clicar no botão para avançar
             logger.info(
-                "🔍 Tela de Termos e Privacidade encontrada. Procurando botão 'Concordo'...")
+                "[BUSCA] Tela de Termos e Privacidade encontrada. Procurando botão 'Concordo'...")
 
             # XPath exato do botão "Concordo" fornecido pelo usuário
             specific_button_xpath = "/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button"
@@ -1033,7 +1033,7 @@ class TermsHandler:
 
             if self._element_exists(specific_button_xpath, timeout=3):
                 try:
-                    logger.info("✅ Encontrado o botão exato de 'Concordo'!")
+                    logger.info("[OK] Encontrado o botão exato de 'Concordo'!")
                     button = self.driver.find_element(
                         By.XPATH, specific_button_xpath)
 
@@ -1055,7 +1055,7 @@ class TermsHandler:
                         # Tentar clique direto
                         button.click()
                         logger.info(
-                            "✅ Clique direto bem-sucedido no botão 'Concordo'")
+                            "[OK] Clique direto bem-sucedido no botão 'Concordo'")
                         button_clicked = True
 
                         # Salvar screenshot após o clique
@@ -1073,20 +1073,20 @@ class TermsHandler:
                         self.driver.execute_script(
                             "arguments[0].click();", button)
                         logger.info(
-                            "✅ Clique via JavaScript bem-sucedido no botão 'Concordo'")
+                            "[OK] Clique via JavaScript bem-sucedido no botão 'Concordo'")
                         button_clicked = True
 
                         # Salvar screenshot após o clique
                         self._save_screenshot("after_concordo_js_button_click")
                     except Exception as e2:
                         logger.error(
-                            f"❌ Falha também ao clicar via JavaScript: {str(e2)}")
+                            f"[ERRO] Falha também ao clicar via JavaScript: {str(e2)}")
 
             # Se o XPath específico não funcionou, tentar o XPath alternativo apenas do div[3]
             if not button_clicked and self._element_exists(specific_button_div_xpath, timeout=2):
                 try:
                     logger.info(
-                        "✅ Encontrado o div[3] dentro do botão 'Concordo'!")
+                        "[OK] Encontrado o div[3] dentro do botão 'Concordo'!")
                     button_div = self.driver.find_element(
                         By.XPATH, specific_button_div_xpath)
 
@@ -1109,14 +1109,14 @@ class TermsHandler:
                         self.driver.execute_script(
                             "arguments[0].click();", parent_button)
                         logger.info(
-                            "✅ Clique via JavaScript bem-sucedido no botão pai do div[3]")
+                            "[OK] Clique via JavaScript bem-sucedido no botão pai do div[3]")
                         button_clicked = True
 
                         # Salvar screenshot após o clique
                         self._save_screenshot("after_concordo_div_click")
                 except Exception as e:
                     logger.error(
-                        f"❌ Erro ao tentar clicar através do div[3]: {str(e)}")
+                        f"[ERRO] Erro ao tentar clicar através do div[3]: {str(e)}")
 
             # Lista genérica de possíveis botões se os específicos não funcionarem
             if not button_clicked:
@@ -1175,7 +1175,7 @@ class TermsHandler:
                                     # Tentar clique direto
                                     button.click()
                                     logger.info(
-                                        f"✅ Clique direto bem-sucedido no botão: {button_text}")
+                                        f"[OK] Clique direto bem-sucedido no botão: {button_text}")
                                     button_clicked = True
 
                                     # Salvar screenshot após o clique
@@ -1191,7 +1191,7 @@ class TermsHandler:
                                         self.driver.execute_script(
                                             "arguments[0].click();", button)
                                         logger.info(
-                                            f"✅ Clique via JavaScript bem-sucedido no botão: {button_text}")
+                                            f"[OK] Clique via JavaScript bem-sucedido no botão: {button_text}")
                                         button_clicked = True
 
                                         # Salvar screenshot após o clique
@@ -1200,7 +1200,7 @@ class TermsHandler:
                                         break
                                     except Exception as e2:
                                         logger.error(
-                                            f"❌ Ambos os métodos de clique falharam: {str(e2)}")
+                                            f"[ERRO] Ambos os métodos de clique falharam: {str(e2)}")
 
                         if button_clicked:
                             break
@@ -1212,7 +1212,7 @@ class TermsHandler:
             # Verificar se conseguimos clicar em algum botão
             if button_clicked:
                 logger.info(
-                    "✅ Botão clicado na tela de Termos e Privacidade. Aguardando processamento...")
+                    "[OK] Botão clicado na tela de Termos e Privacidade. Aguardando processamento...")
                 time.sleep(5)  # Aguardar processamento após o clique
 
                 # Verificar se ainda estamos na mesma tela
@@ -1224,29 +1224,29 @@ class TermsHandler:
 
                 if not still_on_page:
                     logger.info(
-                        "✅ Avançamos da tela de Termos e Privacidade com sucesso!")
+                        "[OK] Avançamos da tela de Termos e Privacidade com sucesso!")
                     return True
                 else:
                     logger.warning(
                         "⚠️ Ainda estamos na tela de Termos e Privacidade após o clique.")
 
                     # Verificar se há modal ou confirmação adicional
-                    logger.info("🔍 Verificando se há modal de confirmação...")
+                    logger.info("[BUSCA] Verificando se há modal de confirmação...")
                     if self._handle_confirmation_modal():
-                        logger.info("✅ Modal tratado com sucesso!")
+                        logger.info("[OK] Modal tratado com sucesso!")
                         return True
                     else:
                         logger.error(
-                            "❌ Não conseguimos avançar após clicar no botão.")
+                            "[ERRO] Não conseguimos avançar após clicar no botão.")
                         return False
             else:
                 logger.error(
-                    "❌ Não foi possível clicar em nenhum botão na tela de Termos e Privacidade.")
+                    "[ERRO] Não foi possível clicar em nenhum botão na tela de Termos e Privacidade.")
                 return False
 
         except Exception as e:
             logger.error(
-                f"❌ Erro ao lidar com a tela 'Privacy and Terms': {str(e)}")
+                f"[ERRO] Erro ao lidar com a tela 'Privacy and Terms': {str(e)}")
             return False
 
     def _is_traditional_terms_screen(self) -> bool:
@@ -1267,7 +1267,7 @@ class TermsHandler:
             for indicator in traditional_indicators:
                 if self._element_exists(indicator, timeout=2):
                     logger.info(
-                        f"✅ Indicador de tela tradicional encontrado: {indicator}")
+                        f"[OK] Indicador de tela tradicional encontrado: {indicator}")
                     found_traditional = True
                     break
 
@@ -1299,7 +1299,7 @@ class TermsHandler:
                 for indicator in accept_button_indicators:
                     if self._element_exists(indicator, timeout=2):
                         logger.info(
-                            f"✅ Botão típico de tela tradicional encontrado: {indicator}")
+                            f"[OK] Botão típico de tela tradicional encontrado: {indicator}")
                         found_traditional = True
                         break
 
@@ -1329,7 +1329,7 @@ class TermsHandler:
                 f"📌 Resultado da detecção de tela tradicional: {found_traditional}")
             return found_traditional
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar tela tradicional: {str(e)}")
+            logger.error(f"[ERRO] Erro ao verificar tela tradicional: {str(e)}")
             return False
 
     def _element_exists(self, xpath, timeout=3):
@@ -1364,7 +1364,7 @@ class TermsHandler:
                     (By.XPATH, terms_locators.RECOVERY_EMAIL_SKIP))
             )
             skip_button.click()
-            logger.info("✅ Botão 'Skip' clicado com sucesso.")
+            logger.info("[OK] Botão 'Skip' clicado com sucesso.")
             time.sleep(2)  # Pequena pausa
 
             return True
@@ -1374,7 +1374,7 @@ class TermsHandler:
             return True  # Continua o fluxo normalmente
         except Exception as e:
             logger.error(
-                f"❌ Erro ao tentar pular email de recuperação: {str(e)}")
+                f"[ERRO] Erro ao tentar pular email de recuperação: {str(e)}")
             return False
 
     def _save_screenshot(self, name):
@@ -1386,15 +1386,15 @@ class TermsHandler:
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             filename = f"{screenshot_dir}/{name}_{timestamp}.png"
             self.driver.save_screenshot(filename)
-            logger.info(f"📸 Screenshot salvo: {filename}")
+            logger.info(f"[FOTO] Screenshot salvo: {filename}")
         except Exception as e:
-            logger.error(f"❌ Erro ao salvar screenshot: {str(e)}")
+            logger.error(f"[ERRO] Erro ao salvar screenshot: {str(e)}")
             # Continuar o fluxo mesmo se não conseguir salvar o screenshot
 
     def _check_account_created(self) -> bool:
         """Verifica se a conta foi criada com sucesso."""
         try:
-            logger.info("🔍 Verificando se a conta foi criada com sucesso...")
+            logger.info("[BUSCA] Verificando se a conta foi criada com sucesso...")
 
             # Indicadores de criação bem-sucedida
             success_indicators = [
@@ -1412,7 +1412,7 @@ class TermsHandler:
             for indicator in success_indicators:
                 if self._element_exists(indicator, timeout=2):
                     logger.info(
-                        "✅ Conta criada com sucesso! Indicador encontrado: " + indicator)
+                        "[OK] Conta criada com sucesso! Indicador encontrado: " + indicator)
                     return True
 
             # Verificar URL atual
@@ -1420,7 +1420,7 @@ class TermsHandler:
                 current_url = self.driver.current_url
                 if "myaccount.google.com" in current_url or "accounts.google.com/signin" in current_url:
                     logger.info(
-                        f"✅ Conta criada com sucesso! URL confirma: {current_url}")
+                        f"[OK] Conta criada com sucesso! URL confirma: {current_url}")
                     return True
             except:
                 pass
@@ -1430,7 +1430,7 @@ class TermsHandler:
             return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar criação da conta: {str(e)}")
+            logger.error(f"[ERRO] Erro ao verificar criação da conta: {str(e)}")
             return False
 
     def _delete_screenshots(self) -> None:
@@ -1441,14 +1441,14 @@ class TermsHandler:
 
             if not os.path.exists(screenshot_dir):
                 logger.info(
-                    "✅ Nenhum diretório de screenshots encontrado para limpar")
+                    "[OK] Nenhum diretório de screenshots encontrado para limpar")
                 return
 
             # Obtém todos os arquivos PNG no diretório de screenshots
             files = glob.glob(f"{screenshot_dir}/*.png")
 
             if not files:
-                logger.info("✅ Nenhum screenshot encontrado para apagar")
+                logger.info("[OK] Nenhum screenshot encontrado para apagar")
                 return
 
             count = 0
@@ -1460,10 +1460,10 @@ class TermsHandler:
                     logger.warning(
                         f"⚠️ Não foi possível apagar o arquivo {file}: {str(e)}")
 
-            logger.info(f"✅ {count} screenshots apagados com sucesso")
+            logger.info(f"[OK] {count} screenshots apagados com sucesso")
 
         except Exception as e:
-            logger.error(f"❌ Erro ao apagar screenshots: {str(e)}")
+            logger.error(f"[ERRO] Erro ao apagar screenshots: {str(e)}")
 
     def _scroll_to_detect_elements(self):
         """Rola a página para detectar elementos que possam estar fora da área visível."""
@@ -1501,8 +1501,8 @@ class TermsHandler:
                     if element.is_displayed():
                         count += 1
 
-            logger.info(f"🔍 Encontrados {count} checkboxes visíveis na página")
+            logger.info(f"[BUSCA] Encontrados {count} checkboxes visíveis na página")
             return count
         except Exception as e:
-            logger.error(f"❌ Erro ao contar checkboxes: {str(e)}")
+            logger.error(f"[ERRO] Erro ao contar checkboxes: {str(e)}")
             return 0

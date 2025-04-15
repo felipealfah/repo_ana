@@ -49,7 +49,7 @@ def shutdown_handler(signum=None, frame=None):
                 except subprocess.TimeoutExpired:
                     process.kill()  # Força o encerramento se demorar demais
     
-    print("✅ Todos os serviços foram encerrados.")
+    print("[OK] Todos os serviços foram encerrados.")
     sys.exit(0)
 
 def main():
@@ -58,7 +58,7 @@ def main():
     
     clear_screen()
     print("=" * 60)
-    print("🚀 INICIANDO SERVIÇOS SMS GATEWAY & UI 🚀")
+    print("[INICIO] INICIANDO SERVIÇOS SMS GATEWAY & UI [INICIO]")
     print("=" * 60)
     
     # Configurar tratamento de sinal para encerramento limpo
@@ -117,7 +117,7 @@ def main():
         )
         streamlit_thread.start()
         
-        print("\n✅ Todos os serviços foram iniciados!")
+        print("\n[OK] Todos os serviços foram iniciados!")
         print("-" * 60)
         print("📋 Instruções:")
         print("  - Os logs dos serviços são mostrados acima com prefixos")
@@ -143,7 +143,7 @@ def main():
 
     except Exception as e:
         logger.error(f"Erro ao iniciar os serviços: {str(e)}")
-        print(f"❌ Erro ao iniciar os serviços: {str(e)}")
+        print(f"[ERRO] Erro ao iniciar os serviços: {str(e)}")
         shutdown_handler()
 
 if __name__ == "__main__":
