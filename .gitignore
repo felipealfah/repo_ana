@@ -9,6 +9,7 @@ credentials/credentials.json
 .json
 dockerfile
 docker-compose.yml
+venv_clear
 
 
 *.log
@@ -179,9 +180,5 @@ cython_debug/
 #.idea/
 
 # PyPI configuration file
-<<<<<<< HEAD
 .pypirc
-=======
-.pypirc
->>>>>>> 9781d9f (Base Criação de Gmail)
 .qodo
